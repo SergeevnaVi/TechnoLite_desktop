@@ -1,5 +1,3 @@
-# Логика работы с БД (запросы)
-
 import mysql.connector
 from mysql.connector import Error
 

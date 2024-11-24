@@ -2,8 +2,8 @@ from functools import partial
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QTreeWidgetItem, QLabel, QToolButton, QPushButton, QVBoxLayout, QMessageBox, QWidget, QGridLayout
-from db.models import (get_categories, get_category_id_by_name, get_subcategories_by_category, get_products_by_subcategory, get_subcategory_id_by_name, 
-get_product_characteristics, get_product_details)
+from db.models import (get_categories, get_subcategories_by_category, get_products_by_subcategory, get_subcategory_id_by_name, 
+                        get_product_characteristics, get_product_details)
 
 class Category_controller():
     def __init__(self, ui, user_id=None):
@@ -14,38 +14,30 @@ class Category_controller():
         self.item_to_buttons = {}  # Связь между элементами дерева и кнопками
         self.load_categories_and_subcategories()
         self.connect_tree_events()
-        self.initialize_main_shop_page()
+
 
     ### Методы для работы с категориями и подкатегориями ###
 
     def load_categories_and_subcategories(self):
-        """Загрузка категорий и подкатегорий в TreeWidget"""
+        """Загрузка категорий и подкатегорий в TreeWidget и обновление словарей."""
         categories = get_categories()
-        # Очищаем старые данные в TreeWidget перед добавлением новых
-        self.ui.treeWidget_category.clear()
-        self.item_to_buttons.clear()  # Очищаем предыдущую связь
-        # Устанавливаем заголовки для TreeWidget
+        self.ui.treeWidget_category.clear()  # Очистка старых данных
+        self.item_to_buttons.clear()  # Очистка связи кнопок
         self.ui.treeWidget_category.setHeaderLabels(["Каталог"])
 
         for category in categories:
-            # Создаем основной элемент категории
             category_item = QTreeWidgetItem(self.ui.treeWidget_category)
             category_item.setText(0, category['name'])
-            # Сохраняем категорию в словарь
             self.categories_data[category['id_category']] = category['name']
 
-            # Получаем подкатегории и создаем уникальный словарь для них
             subcategories = get_subcategories_by_category(category['id_category'])
             unique_subcategories = {sub['id_subcategory']: sub for sub in subcategories}
             self.subcategories_data[category['id_category']] = unique_subcategories
 
-            # Создаем дочерние элементы для подкатегорий (сначала скрытые)
             for sub_id, subcategory in unique_subcategories.items():
                 subcategory_item = QTreeWidgetItem(category_item)
                 subcategory_item.setText(0, subcategory['name'])
-                subcategory_item.setHidden(True)  # Делаем скрытыми изначально
-
-                # Используем subcategory_id как ключ в словаре item_to_buttons
+                subcategory_item.setHidden(True)
                 self.item_to_buttons[subcategory['id_subcategory']] = [
                     self.ui.btn_pr1,
                     self.ui.btn_pr2,
@@ -70,10 +62,11 @@ class Category_controller():
         for i in range(category_item.childCount()):
             category_item.child(i).setHidden(not is_hidden)
 
+
     ### Методы для работы с товарами ###
 
     def on_subcategory_selected(self, item, column):
-        """Обработчик нажатия на подкатегорию."""
+        """Обрабатывает выбор подкатегории. Загружает товары, соответствующие выбранной подкатегории."""
         subcategory_name = item.text(0)
         subcategory_id = get_subcategory_id_by_name(subcategory_name)
 
@@ -91,25 +84,23 @@ class Category_controller():
         self.clear_product_buttons()
 
         if not products:
-            return  # Если товаров нет, выходим
+            return
 
-        buttons = self.item_to_buttons.get(products[0].get('id_subcategory'), [])  # Используем get для безопасного доступа
+        buttons = self.item_to_buttons.get(products[0].get('id_subcategory'), [])
 
         for i, product in enumerate(products[:len(buttons)]):
             button = buttons[i]
             button.setVisible(True)  # Делаем кнопку видимой
-            # Устанавливаем текст кнопки с моделью и ценой
             button.setText(f"{product['model_name']} - {product['price']} ₽")
             button.setToolTip(f"{product['manufacturer_name']}")
-            button.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)  # Устанавливаем текст под иконкой
+            button.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
             button.setEnabled(True)
 
-            # Если изображение есть, устанавливаем иконку
             if product.get('image_url'):
                 pixmap = QPixmap(product['image_url'])
                 if not pixmap.isNull():  # Проверяем, что изображение корректное
-                    icon = QIcon(pixmap)  # Преобразуем QPixmap в QIcon
-                    button.setIcon(icon)  # Устанавливаем иконку
+                    icon = QIcon(pixmap)
+                    button.setIcon(icon)
                     button.setIconSize(QtCore.QSize(150, 150))  # Размер иконки
 
             # Привязываем событие нажатия на кнопку
@@ -152,7 +143,7 @@ class Category_controller():
         """Заполняет таблицу характеристик."""
         self.ui.tableWidget_characteristic.clearContents()
         self.ui.tableWidget_characteristic.setRowCount(len(characteristics))
-        self.ui.tableWidget_characteristic.setColumnCount(2)  # Убедитесь, что 2 столбца
+        self.ui.tableWidget_characteristic.setColumnCount(2)
 
         self.ui.tableWidget_characteristic.setHorizontalHeaderLabels(["Характеристика", "Значение"])
         for row, (name, value) in enumerate(characteristics.items()):
@@ -178,13 +169,9 @@ class Category_controller():
         error_dialog.setText(message)
         error_dialog.exec_()
 
-    def initialize_main_shop_page(self):
-        """Инициализация главной страницы магазина."""
-        self.clear_product_buttons()  # Скрываем кнопки при загрузке страницы
-
     def on_page_changed(self, index):
         """Обработчик смены страницы в stackedWidget."""
         if index == 2:  # Индекс главной страницы магазина
-            self.initialize_main_shop_page()
+            self.clear_product_buttons()  # Скрываем кнопки при загрузке страницы
 
 

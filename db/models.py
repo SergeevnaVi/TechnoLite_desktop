@@ -1,5 +1,3 @@
-# Определение моделей БД (таблицы)
-
 import bcrypt
 import mysql.connector
 from mysql.connector import IntegrityError, Error
@@ -94,19 +92,19 @@ def get_categories():
         return categories
     return []
 
-def get_category_id_by_name(category_name):
-    """Получить ID категории по её названию"""
-    connection = create_connection()
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        query = "SELECT id_category FROM categories WHERE name = %s ORDER BY id_category"
-        cursor.execute(query, (category_name,))
-        category = cursor.fetchone()
-        cursor.close()
-        connection.close()
-        if category:
-            return category['id_category']
-    return None
+# def get_category_id_by_name(category_name):
+#     """Получить ID категории по её названию"""
+#     connection = create_connection()
+#     if connection:
+#         cursor = connection.cursor(dictionary=True)
+#         query = "SELECT id_category FROM categories WHERE name = %s ORDER BY id_category"
+#         cursor.execute(query, (category_name,))
+#         category = cursor.fetchone()
+#         cursor.close()
+#         connection.close()
+#         if category:
+#             return category['id_category']
+#     return None
 
 # Функция для получения подкатегорий по ID категории
 def get_subcategories_by_category(category_id):
@@ -424,50 +422,50 @@ def load_cart_for_user(user_id):
             connection.close()
     return []
 
-def save_to_cart(user_id, product_id, quantity):
-    """
-    Сохраняет товар в корзину пользователя.
-    """
-    connection = create_connection()
-    if connection:
-        cursor = connection.cursor(dictionary=True)
-        try:
-            connection.start_transaction()
+# def save_to_cart(user_id, product_id, quantity):
+#     """
+#     Сохраняет товар в корзину пользователя.
+#     """
+#     connection = create_connection()
+#     if connection:
+#         cursor = connection.cursor(dictionary=True)
+#         try:
+#             connection.start_transaction()
 
-            # Проверка доступности товара на складе
-            query_stock = "SELECT stock_quantity FROM products WHERE id_product = %s"
-            cursor.execute(query_stock, (product_id,))
-            stock = cursor.fetchone()
+#             # Проверка доступности товара на складе
+#             query_stock = "SELECT stock_quantity FROM products WHERE id_product = %s"
+#             cursor.execute(query_stock, (product_id,))
+#             stock = cursor.fetchone()
 
-            if not stock or stock["stock_quantity"] < quantity:
-                print(f"Недостаточно товара на складе. Доступно: {stock['stock_quantity'] if stock else 0}")
-                return False
+#             if not stock or stock["stock_quantity"] < quantity:
+#                 print(f"Недостаточно товара на складе. Доступно: {stock['stock_quantity'] if stock else 0}")
+#                 return False
 
-            # Проверка наличия товара в корзине
-            query_check = "SELECT quantity FROM cart_items WHERE id_user = %s AND id_product = %s"
-            cursor.execute(query_check, (user_id, product_id))
-            result = cursor.fetchone()
+#             # Проверка наличия товара в корзине
+#             query_check = "SELECT quantity FROM cart_items WHERE id_user = %s AND id_product = %s"
+#             cursor.execute(query_check, (user_id, product_id))
+#             result = cursor.fetchone()
 
-            if result:
-                # Если товар уже в корзине, обновляем количество
-                new_quantity = result["quantity"] + quantity
-                query_update = "UPDATE cart_items SET quantity = %s WHERE id_user = %s AND id_product = %s"
-                cursor.execute(query_update, (new_quantity, user_id, product_id))
-            else:
-                # Если товара нет в корзине, добавляем
-                query_insert = "INSERT INTO cart_items (id_user, id_product, quantity) VALUES (%s, %s, %s)"
-                cursor.execute(query_insert, (user_id, product_id, quantity))
+#             if result:
+#                 # Если товар уже в корзине, обновляем количество
+#                 new_quantity = result["quantity"] + quantity
+#                 query_update = "UPDATE cart_items SET quantity = %s WHERE id_user = %s AND id_product = %s"
+#                 cursor.execute(query_update, (new_quantity, user_id, product_id))
+#             else:
+#                 # Если товара нет в корзине, добавляем
+#                 query_insert = "INSERT INTO cart_items (id_user, id_product, quantity) VALUES (%s, %s, %s)"
+#                 cursor.execute(query_insert, (user_id, product_id, quantity))
 
-            connection.commit()
-            return True
-        except Exception as e:
-            connection.rollback()
-            print(f"Ошибка при сохранении товара в корзину: {e}")
-            return False
-        finally:
-            cursor.close()
-            connection.close()
-    return False
+#             connection.commit()
+#             return True
+#         except Exception as e:
+#             connection.rollback()
+#             print(f"Ошибка при сохранении товара в корзину: {e}")
+#             return False
+#         finally:
+#             cursor.close()
+#             connection.close()
+#     return False
 
 # Функция для очистки корзины пользователя
 def clear_cart(user_id):

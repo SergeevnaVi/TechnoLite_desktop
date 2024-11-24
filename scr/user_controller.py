@@ -12,15 +12,15 @@ class User_controller:
         self.category_controller = Category_controller(self.ui)  # Создание экземпляра Category_controller
         self.navigation = NavigationController(self.ui, self.category_controller)  # Создание экземпляра NavigationController
         self.cart_controller = CartController(self.ui)  # Добавляем CartController в User_controller
-        self.cart_controller.set_user_controller(self)
+        self.cart_controller.set_user_controller(self)  # Связываем корзину с текущим пользователем
 
     def set_user(self, user_id):
         """Устанавливает идентификатор пользователя для всех контроллеров."""
         self.current_user_id = user_id  # Сохраняем user_id в главном классе
         self.cart_controller.user_id = user_id
         self.category_controller.user_id = user_id
-
-        self.load_cart_for_user(user_id)
+    
+        self.load_cart_for_user(user_id)  # Загружаем корзину для пользователя
 
     def handle_signin(self):
         """Обработчик кнопки входа"""
@@ -40,11 +40,10 @@ class User_controller:
         # Проверка в базе данных
         user_id = check_user(phone, password)
         if user_id:
-            self.set_user(user_id)
+            self.set_user(user_id)  # Устанавливаем пользователя
             self.navigation.go_to_page_shop()  # Переключаемся на страницу магазина
-            self.show_success("Добро пожаловать!")
         else:
-            self.show_error("Неверный телефон или пароль!")
+            self.show_error("Такого пользователя не существует или неверный пароль!")
 
     def load_cart_for_user(self, user_id):
         """Загрузка сохраненной корзины пользователя."""
@@ -55,11 +54,9 @@ class User_controller:
 
             # Загрузка корзины из базы данных
             cart_items = get_cart_items(user_id)
-            print(f"Загруженные товары: {cart_items}")  # Для отладки
-            self.cart_controller.load_cart(cart_items)
+            print(f"Загруженные товары: {cart_items}")
+            self.cart_controller.load_cart(cart_items)  # Загружаем товары в корзину
         except Exception as e:
-            import traceback
-            print(traceback.format_exc())  # Для полного стека ошибки
             self.show_error(f"Ошибка при загрузке корзины: {e}")
 
 
@@ -104,7 +101,6 @@ class User_controller:
         else:
             self.show_error(message)
 
-    # Метод handle_personal_account_button проверяет авторизацию и открывает личный кабинет.
     def handle_personal_account_button(self):
         """Обработчик кнопки 'Личный кабинет'"""
         if self.current_user_id:

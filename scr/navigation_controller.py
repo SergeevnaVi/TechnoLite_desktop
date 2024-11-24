@@ -1,11 +1,6 @@
 class NavigationController:
     def __init__(self, ui, category_controller=None):
-        """
-        Контроллер навигации между страницами.
-
-        :param ui: Ссылка на UI.
-        :param category_controller: Контроллер категорий для загрузки данных.
-        """
+        """Контроллер навигации между страницами"""
         self.ui = ui
         self.category_controller = category_controller
 
@@ -22,10 +17,6 @@ class NavigationController:
     def go_to_register_page(self):
         """Переключиться на страницу регистрации"""
         self.ui.stackedWidget.setCurrentIndex(1)
-
-    def go_to_orders_page(self):
-        """Переключиться на страницу заказов"""
-        self.ui.stackedWidget.setCurrentIndex(3)
 
     def go_to_cart_page(self):
         """Переключиться на страницу корзины"""
