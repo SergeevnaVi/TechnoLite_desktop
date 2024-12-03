@@ -1,5 +1,7 @@
+import csv
+import os
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QSpinBox
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QSpinBox, QFileDialog
 from db.models import get_product_id_by_name, get_product_by_id, get_cart_items, add_to_cart, update_cart_item_quantity, load_cart_for_user, clear_cart
 
 class CartController:
@@ -116,6 +118,8 @@ class CartController:
                 # Восстанавливаем старое значение
                 previous_quantity = self.ui.tableWidget_cart.item(item.row(), 3).text()
                 item.setText(previous_quantity)
+                if success:
+                    self.update_cart_file()  # Обновляем файл корзины
 
     def on_cart_cell_changed(self, row, column):
         """Обрабатывает изменения в таблице корзины."""
@@ -144,6 +148,7 @@ class CartController:
             self.show_message(f"Товар добавлен в корзину! Количество: {quantity}")
             self.ui.stackedWidget.setCurrentIndex(4)
             self.show_cart_page()  # Обновление корзины
+            self.update_cart_file()  # Обновляем файл
         else:
             self.show_message("Ошибка добавления товара в корзину.")
 
@@ -196,6 +201,69 @@ class CartController:
         """Загружает корзину пользователя в интерфейс."""
         self.cart_items = cart_items
         self.update_cart_ui()
+
+    def update_cart_file(self):
+        """Обновляет или создает файл корзины для пользователя."""
+        if not self.user_id:
+            self.show_message("Пользователь не авторизован!")
+            return
+
+        # Имя файла корзины
+        file_name = f"cart_{self.user_id}.csv"
+        file_path = os.path.join(os.getcwd(), file_name)
+
+        # Проверяем наличие файла
+        file_exists = os.path.exists(file_path)
+
+        try:
+            # Открываем файл в режиме добавления или создаем новый
+            with open(file_path, mode="w" if not file_exists else "a", newline="", encoding="utf-8") as file:
+                writer = csv.writer(file)
+                
+                # Если файл новый, добавляем заголовки
+                if not file_exists:
+                    writer.writerow(["ID товара", "Название", "Цена", "Количество", "Итоговая стоимость"])
+                
+                # Добавляем текущие данные корзины
+                for item in self.cart_items:
+                    writer.writerow([
+                        item["id_product"],
+                        item["model_name"],
+                        f"{item['price']:.2f}",
+                        item["quantity"],
+                        f"{item['quantity'] * item['price']:.2f}"
+                    ])
+            self.show_message("Файл корзины успешно обновлен!")
+        except Exception as e:
+            self.show_message(f"Ошибка при обновлении файла корзины: {str(e)}")
+
+    def clear_cart(self):
+        """Очищает корзину пользователя и обновляет файл."""
+        if not self.user_id:
+            self.show_message("Пользователь не авторизован!")
+            return
+
+        # Очищаем корзину в базе данных
+        clear_cart(self.user_id)
+        self.cart_items = []  # Очищаем локальные данные корзины
+        self.ui.tableWidget_cart.setRowCount(0)  # Обновляем интерфейс корзины
+
+        # Удаляем или очищаем файл корзины
+        file_name = f"cart_{self.user_id}.csv"
+        file_path = os.path.join(os.getcwd(), file_name)
+
+        if os.path.exists(file_path):
+            try:
+                # Перезапись файла с пустыми данными (если нужно сохранить файл)
+                with open(file_path, mode="w", newline="", encoding="utf-8") as file:
+                    writer = csv.writer(file)
+                    # Записываем только заголовки без данных
+                    writer.writerow(["ID товара", "Название", "Цена", "Количество", "Итоговая стоимость"])
+                self.show_message("Корзина и файл успешно очищены!")
+            except Exception as e:
+                self.show_message(f"Ошибка при обновлении файла: {str(e)}")
+        else:
+            self.show_message("Корзина успешно очищена!")
 
     def show_product_page(self, product_id):
         """Отображение страницы товара с заполнением данных."""

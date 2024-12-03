@@ -65,6 +65,10 @@ class MainApp(QMainWindow):
         self.ui.tableWidget_cart.itemChanged.connect(self.Cart_controller.on_quantity_changed)
         self.ui.tableWidget_cart.cellChanged.connect(self.Cart_controller.on_cart_cell_changed)
 
+        # Кнопка для выгрузки данных из корзины в файл
+        self.ui.btn_export_cart.clicked.connect(self.Cart_controller.update_cart_file)
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

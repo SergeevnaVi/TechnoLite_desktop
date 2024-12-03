@@ -944,7 +944,7 @@ QToolButton:pressed {
      <widget class="QPushButton" name="btn_cart_go_shop">
       <property name="geometry">
        <rect>
-        <x>410</x>
+        <x>310</x>
         <y>570</y>
         <width>231</width>
         <height>41</height>
@@ -976,7 +976,7 @@ QPushButton:disabled {
      <widget class="QPushButton" name="btn_clear_cart">
       <property name="geometry">
        <rect>
-        <x>720</x>
+        <x>590</x>
         <y>570</y>
         <width>231</width>
         <height>41</height>
@@ -1083,6 +1083,38 @@ QPushButton:disabled {
         <string>Итоговая стоимость</string>
        </property>
       </column>
+     </widget>
+     <widget class="QPushButton" name="btn_export_cart">
+      <property name="geometry">
+       <rect>
+        <x>870</x>
+        <y>570</y>
+        <width>231</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton:enabled {
+    background-color: #654321;
+    color: white;
+    border-radius: 8px;
+}
+
+QPushButton:disabled {
+    background-color: rgba(160, 82, 45, 0.5);
+    color: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+}
+</string>
+      </property>
+      <property name="text">
+       <string>Экспорт</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page_pers_acc">

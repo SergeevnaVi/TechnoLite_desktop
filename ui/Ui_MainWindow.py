@@ -562,7 +562,7 @@ class Ui_Shop(object):
         self.label_cart.setAlignment(QtCore.Qt.AlignCenter)
         self.label_cart.setObjectName("label_cart")
         self.btn_cart_go_shop = QtWidgets.QPushButton(self.page_cart)
-        self.btn_cart_go_shop.setGeometry(QtCore.QRect(410, 570, 231, 41))
+        self.btn_cart_go_shop.setGeometry(QtCore.QRect(310, 570, 231, 41))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.btn_cart_go_shop.setFont(font)
@@ -580,7 +580,7 @@ class Ui_Shop(object):
 "")
         self.btn_cart_go_shop.setObjectName("btn_cart_go_shop")
         self.btn_clear_cart = QtWidgets.QPushButton(self.page_cart)
-        self.btn_clear_cart.setGeometry(QtCore.QRect(720, 570, 231, 41))
+        self.btn_clear_cart.setGeometry(QtCore.QRect(590, 570, 231, 41))
         font = QtGui.QFont()
         font.setPointSize(10)
         self.btn_clear_cart.setFont(font)
@@ -627,6 +627,24 @@ class Ui_Shop(object):
         self.tableWidget_cart.horizontalHeader().setStretchLastSection(True)
         self.tableWidget_cart.verticalHeader().setVisible(False)
         self.tableWidget_cart.verticalHeader().setDefaultSectionSize(37)
+        self.btn_export_cart = QtWidgets.QPushButton(self.page_cart)
+        self.btn_export_cart.setGeometry(QtCore.QRect(870, 570, 231, 41))
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.btn_export_cart.setFont(font)
+        self.btn_export_cart.setStyleSheet("QPushButton:enabled {\n"
+"    background-color: #654321;\n"
+"    color: white;\n"
+"    border-radius: 8px;\n"
+"}\n"
+"\n"
+"QPushButton:disabled {\n"
+"    background-color: rgba(160, 82, 45, 0.5);\n"
+"    color: rgba(255, 255, 255, 0.5);\n"
+"    border-radius: 8px;\n"
+"}\n"
+"")
+        self.btn_export_cart.setObjectName("btn_export_cart")
         self.stackedWidget.addWidget(self.page_cart)
         self.page_pers_acc = QtWidgets.QWidget()
         self.page_pers_acc.setObjectName("page_pers_acc")
@@ -912,6 +930,7 @@ class Ui_Shop(object):
         item.setText(_translate("Shop", "Количество"))
         item = self.tableWidget_cart.horizontalHeaderItem(4)
         item.setText(_translate("Shop", "Итоговая стоимость"))
+        self.btn_export_cart.setText(_translate("Shop", "Экспорт"))
         self.label_pers_acc.setText(_translate("Shop", "Личный кабинет"))
         self.label_name.setText(_translate("Shop", "Имя"))
         self.label_email.setText(_translate("Shop", "Email"))
